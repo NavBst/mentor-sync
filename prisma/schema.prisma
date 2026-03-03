@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String  @id @default(uuid())
+  clerkUserId String  @unique
+  email       String  @unique
+  name        String?
+  imageUrl    String?
+  industry    String?
+
+  indutryInsight IndustryInsight? @relation(fields: [industry], references: [industry])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Profile fields
+  bio        String?
+  experience Int? //years of exp
+  skills     String[] // array of skills
+
+  assessments Assessment[]
+  resume      Resume?
+  coverLetter CoverLetter[]
+}
+
+model Assessment {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  quizScore      Float // overall
+  questions      Json[] // array of question, answer, userAnswer, isCorrect
+  category       String?
+  improvementTip String? // Ai-generated improvement tip
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Resume {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  // atsScore  Float?
+  // feedback  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CoverLetter {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  content        String // Markdown Content
+  jobDescription String?
+  companyName    String
+  jobTitle       String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model IndustryInsight {
+  id       String @id @default(uuid())
+  industry String @unique
+  users    User[]
+
+  //salary data
+  salaryRanges Json[] // Array of {role: string, min : float, max: float, median: float, location: string?}
+
+  // Industry trends
+  growthRate  Float
+  demandLevel DemandLevel // "High", "Medium", "Low
+  topSkills   String
+
+  // Market conditions
+  marketOutlook MarketOutlook
+  keyTrends     String[]
+
+  // learning suggestions
+  recommendedSkills String[]
+
+  lastUdpated DateTime @default(now())
+  nextUpdate  DateTime // scheduled update time
+
+  @@index([industry])
+}
+
+enum DemandLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum MarketOutlook {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
