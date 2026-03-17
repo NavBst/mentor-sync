@@ -23,7 +23,7 @@ const Header = async () => {
    const log = await checkUser();
   //  console.log(log);
   return (
-    <header className="fixed top-0 w-full border-b bg-background/80 backdrop-blur-md z-50 supports-backdrop-filter:bg-background/60 flex items-center">
+    <header className="fixed top-0 w-full border-b bg-background/80 backdrop-blur-md z-50 supports-backdrop-filter:bg-background/60 flex items-center px-5">
       <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href={"/"}>
           <Image
@@ -85,7 +85,7 @@ const Header = async () => {
               userPreviewMainIdentifier: "font-semibold"
             }
           }}
-
+          clasName="cursor-pointer"
           afterSignOutUrl="/"
         />
       </SignedIn>

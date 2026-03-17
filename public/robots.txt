@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/User-agent: *
+Disallow: /admin/
+Disallow: /(auth)/
+Disallow: /(main)/dashboard
+Disallow: /(main)/interview
+Disallow: /(main)/onboarding
+
+Sitemap: https://yourdomain.com/sitemap.xml
+
+Sitemap: https://yourdomain.com/sitemap.xml
