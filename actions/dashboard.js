@@ -6,6 +6,7 @@ import { auth } from "@clerk/nextjs/server";
 import { generateText } from "ai";
 
 export const generateAIInsights = async (industry) => {
+  console.log(industry);
   const prompt = ` Analyze the current state of the ${industry} industry and provide insights in ONLY the following JSON format without any additional notes or explanations:
           {
             "salaryRanges": [
@@ -22,7 +23,8 @@ export const generateAIInsights = async (industry) => {
           IMPORTANT: Return ONLY the JSON. No additional text, notes, or markdown formatting.
           Include at least 5 common roles for salary ranges.
           Growth rate should be a percentage.
-          Include at least 5 skills and trends.`;
+          Include at least 5 skills and trends.
+          Keep skills simple and one word if possible`;
 
        const {text} =await generateText({
             model: google("gemini-2.5-flash"),

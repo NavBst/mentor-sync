@@ -1,0 +1,17 @@
+ <Tooltip
+                content={(active, payload, label) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="bg-background border rounded-lg pb-2 shadow-md">
+                        <p>{label}</p>
+                        {payload.map((item) => (
+                          <p key={item.name} className="text-sm">
+                            {item.name} : ${item.value}K
+                          </p>
+                        ))}
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
