@@ -11,11 +11,12 @@ import {
 } from "@/components/ui/card";
 import useFetch from "@/hooks/use-fetch";
 import { useEffect, useState } from "react";
-import { BarLoader } from "react-spinners";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import QuizResult from "./quiz-result";
+import QuizLoader from "./quiz-loader";
 
 const Quiz = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -35,7 +36,7 @@ const Quiz = () => {
     setData: setResultData,
   } = useFetch(saveQuizResult);
 
-  console.log(resultData)
+
 
   useEffect(() => {
     if (quizData) {
@@ -77,8 +78,25 @@ const Quiz = () => {
       toast.error(error.message || "Failed to save Quiz Score!");
     }
   };
+
+  const startNewQuiz = () =>{
+    setCurrentQuestion(0);
+    setAnswers([]);
+    setShowExplanation(false);
+    generateQuizFn();
+    setResultData(null);
+  }
+
   if (generatingQuiz) {
-    return <BarLoader className="mt-4" width={"100%"} color="gray" />;
+    return <QuizLoader/>;
+  }
+
+  if(resultData){
+    return (
+      <div className="mx-2">
+        <QuizResult result={resultData} onStartNew={startNewQuiz}/>
+      </div>
+    )
   }
 
   if (!quizData) {

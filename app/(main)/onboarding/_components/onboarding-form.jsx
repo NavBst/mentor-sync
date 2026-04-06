@@ -47,7 +47,6 @@ const OnboardingForm = ({ industries }) => {
   });
 
   const onSubmit = async (values) => {
-    console.log(values);
     try {
       const formattedIndustry = `${values.industry}-${values.subIndustry.toLowerCase().replace(/ /g, "-")}`;
       await updateUserFn({
@@ -55,11 +54,9 @@ const OnboardingForm = ({ industries }) => {
         industry: formattedIndustry,
       });
     } catch (error) {
-      // console.log("Onboarding error", error);
       udpateLoading(false);
       toast.error(error.message);
-    }
-    finally{
+    } finally {
       //  router.refresh();
     }
   };
@@ -192,16 +189,14 @@ const OnboardingForm = ({ industries }) => {
               )}
             </div>
             <Button type="submit" className="w-full" disabled={!udpateLoading}>
-              {
-                !udpateLoading ? (
-                  <>
-                    <Loader className="mr-2 h-4 w-4 animate-spin"/>
-                    Saving..
-                  </>
-                ) : (
-                  "Complete Profile"
-                )
-              }
+              {!udpateLoading ? (
+                <>
+                  <Loader className="mr-2 h-4 w-4 animate-spin" />
+                  Saving..
+                </>
+              ) : (
+                "Complete Profile"
+              )}
             </Button>
           </form>
         </CardContent>

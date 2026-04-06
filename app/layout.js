@@ -30,7 +30,7 @@ export default function RootLayout({ children }) {
           >
             <Header />
             <main className="min-h-screen">{children}</main>
-            <Toaster richColors/>
+            <Toaster richColors position="top-center"/>
             <footer className="bg-muted/50 py-12">
               <div className="container mx-auto text-center px-4 text-gray-200">
                 <p>Footer Text</p>

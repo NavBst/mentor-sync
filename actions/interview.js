@@ -16,7 +16,7 @@ export async function generateQuiz() {
   if (!user) throw new Error("User not Found!");
 
   const prompt = `
-    Generate 10 technical interview questions for a ${
+    Generate 15 technical interview questions for a ${
       user.industry
     } professional${
       user.skills?.length ? ` with expertise in ${user.skills.join(", ")}` : ""
@@ -125,5 +125,33 @@ export async function saveQuizResult(questions, answers, score) {
       console.error("Failed to");
       throw new Error("Failed to generate Quiz", error);
     }
+  }
+}
+
+export async function getAssessments() {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized!");
+  const user = await db.user.findUnique({
+    where: {
+      clerkUserId: userId,
+    },
+  });
+  if (!user) throw new Error("User not Found!");
+
+  try {
+    const assessments = await db.assessment.findMany({
+      where:{
+        userId: user.id,
+      },
+      orderBy:{
+        createdAt: "asc",
+      }
+    });
+
+    return assessments;
+  } catch (error) {
+      console.error("Error Fetching assessments", error);
+      throw new Error("Failed  to fetch assessments");
+      
   }
 }

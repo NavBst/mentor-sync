@@ -21,7 +21,7 @@ import { checkUser } from "@/lib/checkUser";
 
 const Header = async () => {
    const log = await checkUser();
-  //  console.log(log);
+
   return (
     <header className="fixed top-0 w-full border-b bg-background/80 backdrop-blur-md z-50 supports-backdrop-filter:bg-background/60 flex items-center px-5">
       <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -54,7 +54,7 @@ const Header = async () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem>
-                  <Link href={""} className="flex item center gap-2">
+                  <Link href={"/resume"} className="flex item center gap-2">
                     <FileText className="h-4 w-4" />
                     <span>Build Resume</span>
                   </Link>
@@ -66,7 +66,7 @@ const Header = async () => {
                   </Link>
                 </DropdownMenuItem>{" "}
                 <DropdownMenuItem>
-                  <Link href={""} className="flex item center gap-2">
+                  <Link href={"/interview"} className="flex item center gap-2">
                     <MessageSquare className="h-4 w-4" />
                     <span>Interview Prep</span>
                   </Link>

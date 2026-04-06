@@ -12,7 +12,7 @@ export async function updateUser(data) {
       clerkUserId: userId,
     },
   });
-  // console.log(data);
+
   if (!user) throw new Error("User does not exist!");
 
   try {
@@ -52,7 +52,6 @@ export async function updateUser(data) {
             skills: data.skills,
           },
         });
-        console.log(updatedUser)
         return { updatedUser, industryInsight };
       },
       { timeout: 40000 },

@@ -64,7 +64,7 @@ const DashboardView = ({ insights }) => {
 
   const OutlookIcon = getMarketOutlookInfo(insights.marketOutlook).icon;
   const outlookColor = getMarketOutlookInfo(insights.marketOutlook).color;
-  // console.log("lastUpdated value:", new Date(insights.lastUpdated));
+
   const lastUpdated = format(new Date(insights.lastUpdated), "dd/mm/yyyy");
 
   const nextUpdateDistance = formatDistanceToNow(
@@ -157,9 +157,9 @@ const DashboardView = ({ insights }) => {
                 <Tooltip
                   className="z-50"
                   content={({ active, payload, label }) => {
-                    console.log(payload);
+                   
                     if (active && payload && payload.length) {
-                      console.log(active);
+                    
                       return (
                         <div className="bg-background border rounded-lg p-2 shadow-md">
                           <p>{label}</p>

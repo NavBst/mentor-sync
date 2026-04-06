@@ -6,7 +6,7 @@ import { auth } from "@clerk/nextjs/server";
 import { generateText } from "ai";
 
 export const generateAIInsights = async (industry) => {
-  console.log(industry);
+
   const prompt = ` Analyze the current state of the ${industry} industry and provide insights in ONLY the following JSON format without any additional notes or explanations:
           {
             "salaryRanges": [
