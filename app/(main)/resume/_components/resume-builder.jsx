@@ -213,7 +213,7 @@ const ResumeBuilder = ({ initialContent }) => {
 
               {/* education */}
                <div className="space-y-2">
-              <h3 className="text-lg font-medium"></h3>
+              <h3 className="text-lg font-medium">Education</h3>
               <Controller
                 name="education"
                 control={control}

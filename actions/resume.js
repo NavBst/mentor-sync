@@ -1,4 +1,4 @@
-"use server"
+"use server";
 import { db } from "@/lib/prisma";
 import { google } from "@ai-sdk/google";
 import { auth } from "@clerk/nextjs/server";
@@ -59,6 +59,7 @@ export async function getResume(content) {
 }
 
 export async function improveWithAI({ current, type }) {
+  console.log("second");
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
@@ -93,6 +94,9 @@ export async function improveWithAI({ current, type }) {
     });
 
     const improvedContent = text.trim();
-    return improvedContent();
-  } catch (error) {}
+    return improvedContent;
+  } catch (error) {
+    console.error(error.message);
+    throw error;
+  }
 }

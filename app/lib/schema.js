@@ -37,8 +37,8 @@ export const contatSchema = z.object({
 export const entrySchema = z
   .object({
     title: z.string().min(1, "Title is required"),
-    organiztion: z.string().min(1, "Organization is required"),
-    startDate: z.string().min("Start date is required"),
+    organization: z.string().min(1, "Organization is required"),
+    startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().optional(),
     description: z.string().min(1, "Description is required"),
     current: z.boolean().default(false),
