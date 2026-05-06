@@ -1,8 +1,15 @@
 "use client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Download, Save } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  AlertTriangle,
+  Download,
+  Edit,
+  Loader2,
+  Monitor,
+  Save,
+} from "lucide-react";
+import { useEffect, useState, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { resumeSchema } from "@/app/lib/schema";
@@ -11,10 +18,17 @@ import { saveResume } from "@/actions/resume";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import EntryForm from "./entry-form";
+import { entriesToMarkdown } from "@/app/lib/helper";
+import { useUser } from "@clerk/nextjs";
+import MDEditor from "@uiw/react-md-editor";
+import { toast } from "sonner";
 
 const ResumeBuilder = ({ initialContent }) => {
   const [activeTab, setActiveTab] = useState("edit");
-
+  const [resumeMode, setResumeMode] = useState("preview");
+  const [previewContent, setPreviewContent] = useState(initialContent);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const resumePdfRef = useRef(null);
   const {
     control,
     register,
@@ -42,17 +56,106 @@ const ResumeBuilder = ({ initialContent }) => {
 
   const formValues = watch();
 
-  useEffect(() => {
-    if (initialContent) setActiveTab("preview");
-  }, [initialContent]);
+  const { user } = useUser();
 
   useEffect(() => {
     if (initialContent) setActiveTab("preview");
   }, [initialContent]);
 
-  const onSubmit = async () =>{
+  useEffect(() => {
+    if (activeTab === "edit") {
+      const newContent = getCombinedContent();
+      setPreviewContent(newContent ? newContent : initialContent);
+    }
+  }, [formValues, activeTab]);
 
-  }
+  const getContactMarkdown = () => {
+    const { contactInfo } = formValues;
+    const parts = [];
+    if (contactInfo.email) parts.push(`📧 ${contactInfo.email}`);
+    if (contactInfo.mobile) parts.push(`📱 ${contactInfo.mobile}`);
+    if (contactInfo.linked) parts.push(`💼 [Linkedin](${contactInfo.linked})`);
+    if (contactInfo.twitter) parts.push(`🐦 [Twitter](${contactInfo.twitter})`);
+
+    return parts.length > 0
+      ? `## <div align="center">${user.fullName}</div> \n\n<div align="center">\n\n${parts.join(" | ")}\n\n</div>`
+      : " ";
+  };
+
+  const getCombinedContent = () => {
+    const { summary, skills, education, experience, projects } = formValues;
+    return [
+      getContactMarkdown(),
+      summary && ` ## Professional Summary\n\n${summary}`,
+      skills && `## Skills\n\n${skills}`,
+      entriesToMarkdown(experience, "Work Experience"),
+      entriesToMarkdown(education, "Education"),
+      entriesToMarkdown(projects, "Projects"),
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+  };
+
+  useEffect(()=>{
+    if(saveResult && !isSaving){
+      toast.success("Resume saved successfully!");
+    }
+    if(saveError)
+    {
+      toast.error(saveError.message || "Failed to save resume");
+    }
+
+  }, [saveResult, saveError, isSaving]);
+
+  const onSubmit = async () => {
+
+    try {
+      await saveResumeFn(previewContent);
+      console.log("first")
+    } catch (error) {
+      console.error("Save Error: ", error)
+    }
+  };
+
+  const generatePDF = async () => {
+    setIsGenerating(true);
+    try {
+      // Dynamically load the libraries only on the client
+      const html2canvas = (await import("html2canvas-pro")).default;
+      const { jsPDF } = await import("jspdf");
+
+      const element = document.querySelector("#resume-pdf");
+      console.log(element);
+      if (!element) {
+        throw new Error("Resume element not found");
+      }
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+      });
+
+      const imgData = canvas.toDataURL("image/jpeg", 1.0);
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const imgProps = pdf.getImageProperties(imgData);
+      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, imgHeight);
+      pdf.save(`${user.firstName}_resume.pdf`);
+    } catch (error) {
+      console.error("PDF Generation Error:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -61,13 +164,37 @@ const ResumeBuilder = ({ initialContent }) => {
           Resume Builder
         </h1>
         <div className="space-x-2 space-y-3">
-          <Button variant="destructive">
-            <Save className="h-4 w-4" />
-            Save
+          <Button
+            variant="destructive"
+            onClick={onSubmit}
+            disabled={isSaving}
+          >
+            {
+              isSaving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+                </>
+              )
+              :
+              (
+              <>
+                <Save className="h-4 w-4" />
+                Save
+              </>)
+            }
           </Button>
-          <Button>
-            <Download className="h-4 w-4" />
-            Download PDF
+          <Button onClick={generatePDF} disabled={isGenerating}>
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Generating Pdf...
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4" />
+                Download PDF
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -78,7 +205,7 @@ const ResumeBuilder = ({ initialContent }) => {
           <TabsTrigger value="preview">Markdown</TabsTrigger>
         </TabsList>
         <TabsContent value="edit">
-          <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
+          <form className="space-y-8">
             <div className="space-y-2">
               <h3 className="text-lg font-medium">Contact Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg bg-muted/60">
@@ -154,7 +281,7 @@ const ResumeBuilder = ({ initialContent }) => {
                 </div>
               </div>
             </div>
-              {/* professional summary  */}
+            {/* professional summary  */}
             <div className="space-y-2">
               <h3 className="text-lg font-medium">Professional Summary</h3>
               <Controller
@@ -174,9 +301,11 @@ const ResumeBuilder = ({ initialContent }) => {
                 <p className="text-sm text-red-500">{errors.summary.message}</p>
               )}
             </div>
-              {/* skills  */}
-             <div className="space-y-2">
-              <h3 className="text-lg font-medium">Skills<sup className="text-red-700">*</sup></h3>
+            {/* skills  */}
+            <div className="space-y-2">
+              <h3 className="text-lg font-medium">
+                Skills<sup className="text-red-700">*</sup>
+              </h3>
               <Controller
                 name="skills"
                 control={control}
@@ -195,57 +324,140 @@ const ResumeBuilder = ({ initialContent }) => {
               )}
             </div>
 
-              {/* expericence */}
-              <div className="space-y-2">
+            {/* expericence */}
+            <div className="space-y-2">
               <h3 className="text-lg font-medium">Work Experience</h3>
               <Controller
                 name="experience"
                 control={control}
                 render={({ field }) => (
-                 <EntryForm type="Experience" entries={field.value} onChange={field.onChange}/>
+                  <EntryForm
+                    type="Experience"
+                    entries={field.value}
+                    onChange={field.onChange}
+                  />
                 )}
               />
 
               {errors.experience && (
-                <p className="text-sm text-red-500">{errors.experience.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.experience.message}
+                </p>
               )}
             </div>
 
-              {/* education */}
-               <div className="space-y-2">
+            {/* education */}
+            <div className="space-y-2">
               <h3 className="text-lg font-medium">Education</h3>
               <Controller
                 name="education"
                 control={control}
                 render={({ field }) => (
-                 <EntryForm type="Education" entries={field.value} onChange={field.onChange}/>
+                  <EntryForm
+                    type="Education"
+                    entries={field.value}
+                    onChange={field.onChange}
+                  />
                 )}
               />
 
               {errors.education && (
-                <p className="text-sm text-red-500">{errors.education.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.education.message}
+                </p>
               )}
             </div>
 
             {/* projects  */}
-             <div className="space-y-2">
+            <div className="space-y-2">
               <h3 className="text-lg font-medium">Projects</h3>
               <Controller
                 name="projects"
                 control={control}
                 render={({ field }) => (
-                 <EntryForm type="Projects" entries={field.value} onChange={field.onChange}/>
+                  <EntryForm
+                    type="Projects"
+                    entries={field.value}
+                    onChange={field.onChange}
+                  />
                 )}
               />
 
               {errors.projects && (
-                <p className="text-sm text-red-500">{errors.projects.message}</p>
+                <p className="text-sm text-red-500">
+                  {errors.projects.message}
+                </p>
               )}
             </div>
-
           </form>
         </TabsContent>
-        <TabsContent value="preview">Change your password here.</TabsContent>
+        <TabsContent value="preview">
+          <Button
+            type="button"
+            variant="link"
+            className="mb-2"
+            onClick={() => {
+              resumeMode === "preview"
+                ? setResumeMode("edit")
+                : setResumeMode("preview");
+            }}
+          >
+            {resumeMode === "preview" ? (
+              <>
+                <Edit className="h-4 w-4" /> Edit resume
+              </>
+            ) : (
+              <>
+                <Monitor className="w-4 h-4" />
+                show preview
+              </>
+            )}
+          </Button>
+          {resumeMode !== "preview" && (
+            <div className="flex p-3 gap-2 items-center border-2 border-yellow-600 text-yellow-600 rounded mb-2">
+              <AlertTriangle className="h-5 w-5" />
+              <span className="text-sm">
+                You will lose edited markdown if you update the form data.
+              </span>
+            </div>
+          )}
+
+          <div className="border rounded-lg">
+            <MDEditor
+              value={previewContent}
+              onChange={setPreviewContent}
+              height={800}
+              preview={resumeMode}
+            />
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              left: "-9999px",
+              top: 0,
+              width: "210mm", // Standard A4 Width
+            }}
+          >
+            <div id="resume-pdf">
+              <div
+                id="resume-pdf"
+                className="resume-pdf-container"
+                style={{
+                  padding: "5mm 7mm", // This creates the 20mm margin on all sides
+                  background: "white",
+                  minHeight: "297mm", // Standard A4 height
+                  boxSizing: "border-box", // Critical: ensures padding doesn't increase width
+                  textAlign: "justify",
+                }}
+              >
+                <MDEditor.Markdown
+                  source={previewContent}
+                  style={{ background: "white", color: "black" }}
+                />
+              </div>
+            </div>
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
   );

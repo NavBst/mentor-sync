@@ -55,6 +55,7 @@ model Resume {
   user      User     @relation(fields: [userId], references: [id])
   // atsScore  Float?
   // feedback  String?
+  content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

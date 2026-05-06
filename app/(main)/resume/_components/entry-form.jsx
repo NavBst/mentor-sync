@@ -58,7 +58,6 @@ const EntryForm = ({ type, entries, onChange }) => {
   const current = watch("current");
 
   const handleAdd = handleValidation((data) => {
-
     const formattedEntry = {
       ...data,
       startDate: formatDisplayDate(data.startDate),
@@ -70,6 +69,7 @@ const EntryForm = ({ type, entries, onChange }) => {
     reset();
     setIsAdding(false);
   });
+
   const handleDelete = (index) => {
     const newEntries = entries.filter((_, i) => i !== index);
     onChange(newEntries);
@@ -80,9 +80,8 @@ const EntryForm = ({ type, entries, onChange }) => {
       toast.error("Please enter a description first!");
       return;
     }
-    console.log("first");
+
     await improveWithAIFn({ current: description, type: type.toLowerCase() });
-    console.log("final");
   };
 
   useEffect(() => {
@@ -99,7 +98,6 @@ const EntryForm = ({ type, entries, onChange }) => {
     <div className="space-y-4">
       <div className="space-y-4">
         {entries.map((item, index) => {
-          console.log(item)
           return (
             <Card key={index} className="gap-3">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
@@ -154,7 +152,9 @@ const EntryForm = ({ type, entries, onChange }) => {
                   error={errors.organization}
                 />
                 {errors.organization && (
-                  <p className="text-sm text-red-500">{errors.organization.message}</p>
+                  <p className="text-sm text-red-500">
+                    {errors.organization.message}
+                  </p>
                 )}
               </div>
             </div>
