@@ -59,7 +59,6 @@ export async function getResume(content) {
 }
 
 export async function improveWithAI({ current, type }) {
-  console.log("second");
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 

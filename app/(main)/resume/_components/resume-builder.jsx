@@ -26,7 +26,7 @@ import { toast } from "sonner";
 const ResumeBuilder = ({ initialContent }) => {
   const [activeTab, setActiveTab] = useState("edit");
   const [resumeMode, setResumeMode] = useState("preview");
-  const [previewContent, setPreviewContent] = useState(initialContent);
+  const [previewContent, setPreviewContent] = useState(initialContent || "");
   const [isGenerating, setIsGenerating] = useState(false);
   const resumePdfRef = useRef(null);
   const {
@@ -65,7 +65,7 @@ const ResumeBuilder = ({ initialContent }) => {
   useEffect(() => {
     if (activeTab === "edit") {
       const newContent = getCombinedContent();
-      setPreviewContent(newContent ? newContent : initialContent);
+      setPreviewContent(newContent.trim() ? newContent : initialContent || "");
     }
   }, [formValues, activeTab]);
 
@@ -79,7 +79,7 @@ const ResumeBuilder = ({ initialContent }) => {
 
     return parts.length > 0
       ? `## <div align="center">${user.fullName}</div> \n\n<div align="center">\n\n${parts.join(" | ")}\n\n</div>`
-      : " ";
+      : "";
   };
 
   const getCombinedContent = () => {
@@ -424,7 +424,7 @@ const ResumeBuilder = ({ initialContent }) => {
 
           <div className="border rounded-lg">
             <MDEditor
-              value={previewContent}
+              value={previewContent || ""}
               onChange={setPreviewContent}
               height={800}
               preview={resumeMode}
@@ -450,8 +450,9 @@ const ResumeBuilder = ({ initialContent }) => {
                   textAlign: "justify",
                 }}
               >
-                <MDEditor.Markdown
-                  source={previewContent}
+                <MDEditor
+                  // source={previewContent}
+                  value={previewContent || ""}
                   style={{ background: "white", color: "black" }}
                 />
               </div>
