@@ -1,35 +1,38 @@
-# MentorSync - AI-Powered Career Coaching Platform
+# MentorSync - AI Career Coaching Platform
 
-MentorSync is a modern, AI-driven career coaching platform designed to help professionals accelerate their career growth. By leveraging advanced AI technology, MentorSync provides personalized guidance, interview preparation, industry insights, and smart document generation to give users a competitive edge in the job market.
+MentorSync is a modern, AI-assisted career coaching app built with Next.js and Clerk. It helps professionals prepare for interviews, generate resumes and cover letters, and stay informed with industry insights.
 
 ## 🚀 Features
 
-- **AI-Powered Career Guidance**: Get personalized career advice and strategic insights tailored to your professional background and goals.
-- **Interview Preparation**: Practice with role-specific mock interviews and receive instant, actionable feedback to improve your performance.
-- **Industry Insights**: Stay ahead of the curve with real-time trends, salary data, and comprehensive market analysis across 50+ industries.
-- **Smart Resume & Cover Letter Creation**: Generate ATS-optimized resumes and professional cover letters with AI assistance to stand out to recruiters.
-- **Personalized Onboarding**: A tailored experience that starts with understanding your unique professional journey and aspirations.
-- **Progress Dashboard**: Track your assessments, applications, and career growth in one centralized location.
+- **Personalized onboarding** for industry, role, and experience.
+- **AI-powered interview preparation** with quiz assessments, score tracking, and mock interview flow.
+- **AI cover letter generation** with job-specific content, history, and preview.
+- **Resume builder and export** with live preview and PDF generation.
+- **Industry insights dashboard** for market trends, salary ranges, and growth signals.
+- **Protected user experience** powered by Clerk authentication.
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: [Next.js 15](https://nextjs.org/) (App Router), [React 19](https://react.dev/), [Tailwind CSS 4](https://tailwindcss.com/)
-- **UI Components**: [Shadcn UI](https://ui.shadcn.com/), [Radix UI](https://www.radix-ui.com/), [Lucide React](https://lucide.dev/)
-- **Authentication**: [Clerk](https://clerk.com/)
-- **Database & ORM**: [PostgreSQL](https://www.postgresql.org/), [Prisma](https://www.prisma.io/)
-- **Background Jobs**: [Inngest](https://www.inngest.com/)
-- **Theming**: [Next Themes](https://github.com/pacocoursey/next-themes) (Dark/Light mode support)
+- **Frontend**: Next.js 16.1.6 (App Router), React 19.2.3
+- **Styling**: Tailwind CSS 4, Shadcn UI, Radix UI
+- **Auth**: Clerk
+- **Database**: PostgreSQL with Prisma
+- **AI**: Google Gemini via `@ai-sdk/google` and `ai`
+- **Background workflows**: Inngest
+- **PDF export**: `html2canvas-pro` and `jspdf`
 
 ## 📁 Project Structure
 
 ```text
-├── actions/          # Server actions for user management
-├── app/              # Next.js App Router (Auth, Dashboard, AI features)
-├── components/       # Reusable UI components and layout elements
-├── data/             # Static content (FAQs, Features, Testimonials)
-├── lib/              # Shared utilities, Prisma client, and Inngest configuration
-├── prisma/           # Database schema and migrations
-└── public/           # Static assets (images, icons, etc.)
+├── actions/          # Server-side actions and AI workflows
+├── app/              # Next.js App Router pages and feature layouts
+│   ├── (auth)/       # Clerk sign-in / sign-up flows
+│   ├── (main)/       # Authenticated dashboard, AI features, resume, interview, onboarding
+├── components/       # Reusable UI components
+├── data/             # Static content and marketing data
+├── lib/              # Utilities, Prisma client, Inngest setup, validation schemas
+├── prisma/           # Prisma schema and migrations
+└── public/           # Static assets
 ```
 
 ## ⚙️ Getting Started
@@ -37,57 +40,65 @@ MentorSync is a modern, AI-driven career coaching platform designed to help prof
 ### Prerequisites
 
 - Node.js 18.x or later
-- A PostgreSQL database (e.g., Supabase, Neon, or local)
-- A Clerk account for authentication
+- PostgreSQL database
+- Clerk account for authentication
+- Google Generative AI API key for AI features
 
 ### Installation
 
-1. **Clone the repository:**
+1. Clone the repository:
    ```bash
    git clone <repository-url>
    cd mentorsync
    ```
 
-2. **Install dependencies:**
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-3. **Set up environment variables:**
-   Create a `.env` file in the root directory and add the following:
+3. Add environment variables in `.env`:
    ```env
    DATABASE_URL="your_postgresql_url"
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="your_clerk_pub_key"
    CLERK_SECRET_KEY="your_clerk_secret_key"
    NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
    NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-   # Add any AI model API keys if required (e.g., GEMINI_API_KEY)
+   GOOGLE_GENERATIVE_AI_API_KEY="your_google_api_key"
    ```
 
-4. **Initialize the database:**
+4. Initialize the database:
    ```bash
    npx prisma generate
    npx prisma db push
    ```
 
-5. **Run the development server:**
+5. Run locally:
    ```bash
    npm run dev
    ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit [http://localhost:3000](http://localhost:3000).
 
 ## 📊 Database Schema
 
-The project uses Prisma with a robust schema including:
-- `User`: Profiles, skills, and industry associations.
-- `Assessment`: AI-generated quiz scores and improvement tips.
-- `Resume` & `CoverLetter`: Management for professional documents.
-- `IndustryInsight`: Dynamic market data, salary ranges, and growth trends.
+Core Prisma models include:
+- `User`: stores Clerk account link, profile data, industry, bio, experience, and skills.
+- `Assessment`: stores interview quiz results, question details, and AI improvement tips.
+- `Resume`: stores user resume content.
+- `CoverLetter`: stores generated cover letters with job and company details.
+- `IndustryInsight`: stores industry trends, salary ranges, demand levels, and recommended skills.
+
+## 🚧 Scripts
+
+- `npm run dev` — start development server
+- `npm run build` — build production app
+- `npm run start` — run production server
+- `npm run lint` — lint project files
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome. Open a PR with improvements, bug fixes, or documentation updates.
 
 ## 📄 License
 
