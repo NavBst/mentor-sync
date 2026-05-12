@@ -188,8 +188,8 @@ const OnboardingForm = ({ industries }) => {
                 <p className="text-sm text-red-500">{errors.bio.message}</p>
               )}
             </div>
-            <Button type="submit" className="w-full" disabled={!udpateLoading}>
-              {!udpateLoading ? (
+            <Button type="submit" className="w-full" disabled={udpateLoading}>
+              {udpateLoading ? (
                 <>
                   <Loader className="mr-2 h-4 w-4 animate-spin" />
                   Saving..

@@ -4,7 +4,7 @@ import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { generateAIInsights } from "./dashboard";
 
-export async function updateUser(data) {
+export async function updateUser(data) {  
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized!");
   const user = await db.user.findUnique({
