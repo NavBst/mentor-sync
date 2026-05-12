@@ -116,7 +116,7 @@ const OnboardingForm = ({ industries }) => {
             </div>
             {watchInsdustry && (
               <div className="space-y-3">
-                <Label htmlFor="subIndustry">Industry</Label>
+                <Label htmlFor="subIndustry">Sub Industry</Label>
                 <Select
                   onValueChange={(value) => {
                     setValue("subIndustry", value);
